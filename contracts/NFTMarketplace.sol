@@ -6,6 +6,9 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+
+import "hardhat/console.sol";
 
   struct MarketItem {
     uint256 itemId;
@@ -66,6 +69,10 @@ contract NFTMarketplace is IMarketplace, ReentrancyGuard {
     _;
   }
 
+  function getListingPrice() public view returns (uint256) {
+    return listingPrice;
+  }
+
   function listNFTItem(address nftContract, uint256 tokenId, uint256 price)
     external
     override
@@ -76,9 +83,8 @@ contract NFTMarketplace is IMarketplace, ReentrancyGuard {
     require(msg.value == listingPrice, "listingPrice: price must be equal to the listing price");
 
     address tokenOwner = address(0);
-    address tokenSeller = msg.sender;
+    address tokenSeller = msg.sender; 
 
-    itemIds.increment();
     uint256 itemId = itemIds.current();
     marketItems[itemId] = MarketItem(
       itemId,
@@ -89,7 +95,8 @@ contract NFTMarketplace is IMarketplace, ReentrancyGuard {
       price,
       false
     );
-
+    itemIds.increment();
+    
     IERC721(nftContract).transferFrom(tokenSeller, address(this), tokenId);
 
     emit MarketItemCreated(itemId, nftContract, tokenId, tokenOwner, tokenSeller, price, false);
@@ -102,7 +109,7 @@ contract NFTMarketplace is IMarketplace, ReentrancyGuard {
 
     (bool sent, ) = marketItem.seller.call{value: marketItem.price}("");
     require(sent, "buyNFTItem: Paymebnt ether tranfer failed");
-    IERC721(marketItem.nftContract).transferFrom(marketItem.seller, msg.sender, marketItem.tokenId);
+    IERC721(marketItem.nftContract).transferFrom(address(this), msg.sender, marketItem.tokenId);
     marketItem.owner = msg.sender;
     marketItem.sold = true;
     itemsSold.increment();
