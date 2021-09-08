@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
-  struct MarketItem {
+struct MarketItem {
     uint256 itemId;
     address nftContract;
     uint256 tokenId;
@@ -18,7 +18,7 @@ import "hardhat/console.sol";
     address seller;
     uint256 price;
     bool sold;
-  }
+}
 
 interface IMarketplace {
 
